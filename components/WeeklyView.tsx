@@ -13,7 +13,7 @@ interface WeeklyViewProps {
 
 const WeeklyView: React.FC<WeeklyViewProps> = ({ tasks, onAddTask, onUpdateTask, onDeleteTask, onViewChange }) => {
   const days = ['일', '월', '화', '수', '목', '금', '토'];
-  const subjects = ['수학', '과학', '역사', '언어', '컴퓨터공학', '미술', '기타'];
+  const subjects = ['수학', '과학', '역사', '언어', '컴퓨터공학', '미술', '기타', '직접 입력'];
   const hoursArr = Array.from({ length: 24 }, (_, i) => i);
   const HOUR_HEIGHT = 80; // 1시간당 높이 (px)
 
@@ -25,6 +25,7 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ tasks, onAddTask, onUpdateTask,
   const [quickTask, setQuickTask] = useState({
     title: '',
     subject: '수학',
+    customSubject: '',
     priority: 'medium' as Priority,
     startTime: '09:00',
     endTime: '10:00'
@@ -74,7 +75,9 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ tasks, onAddTask, onUpdateTask,
       ...quickTask,
       startTime: startTimeStr,
       endTime: endTimeStr,
-      title: ''
+      title: '',
+      subject: '수학',
+      customSubject: ''
     });
   };
 
@@ -88,6 +91,7 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ tasks, onAddTask, onUpdateTask,
 
     onAddTask({
       ...quickTask,
+      subject: quickTask.subject === '직접 입력' ? quickTask.customSubject : quickTask.subject,
       dueDate: addingDate,
       status: 'todo',
       estimatedHours: 1
@@ -358,13 +362,13 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ tasks, onAddTask, onUpdateTask,
                             style={{ top: `${top}px`, height: `${height}px` }}
                             onClick={() => onUpdateTask(task.id, { status: task.status === 'completed' ? 'todo' : 'completed' })}
                             className={`absolute inset-x-1.5 p-2 rounded-xl border shadow-sm transition-all pointer-events-auto cursor-pointer hover:shadow-md group/task overflow-hidden ${task.status === 'completed'
-                                ? 'bg-slate-50 border-slate-100 opacity-60'
-                                : 'bg-white border-indigo-100 border-l-4 border-l-indigo-500 hover:border-l-indigo-600'
+                              ? 'bg-slate-50 border-slate-100 opacity-60'
+                              : 'bg-white border-indigo-100 border-l-4 border-l-indigo-500 hover:border-l-indigo-600'
                               }`}
                           >
                             <div className="flex items-center justify-between mb-1">
                               <span className={`text-[7px] font-black uppercase px-1.5 py-0.5 rounded-md ${task.priority === 'high' ? 'bg-rose-100 text-rose-600' :
-                                  task.priority === 'medium' ? 'bg-amber-100 text-amber-600' : 'bg-sky-100 text-sky-600'
+                                task.priority === 'medium' ? 'bg-amber-100 text-amber-600' : 'bg-sky-100 text-sky-600'
                                 }`}>
                                 {task.subject}
                               </span>
