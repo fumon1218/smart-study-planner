@@ -15,10 +15,19 @@ import { getQuickAdvice } from './services/gemini';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>('dashboard');
-  
-  // 모바일 모드 상태 (로컬 스토리지 저장 및 화면 너비 초기 감지)
+
+  // 사용자 고유 아이디 (기기별 식별)
+  const [userId] = useState<string>(() => {
+    const saved = localStorage.getItem('ssp_user_id');
+    if (saved) return saved;
+    const newId = Math.random().toString(36).substring(2, 11).toUpperCase();
+    localStorage.setItem('ssp_user_id', newId);
+    return newId;
+  });
+
+  // 모바일 모드 상태
   const [isMobileMode, setIsMobileMode] = useState<boolean>(() => {
-    const saved = localStorage.getItem('is_mobile_mode');
+    const saved = localStorage.getItem(`is_mobile_mode_${userId}`);
     if (saved !== null) return saved === 'true';
     return window.innerWidth < 768;
   });
@@ -29,19 +38,19 @@ const App: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // 사용자 정보 상태
-  const [userName, setUserName] = useState<string>(() => localStorage.getItem('user_name') || '홍길동');
-  const [userProfileImage, setUserProfileImage] = useState<string | null>(() => localStorage.getItem('user_profile_image'));
+  const [userName, setUserName] = useState<string>(() => localStorage.getItem(`user_name_${userId}`) || '홍길동');
+  const [userProfileImage, setUserProfileImage] = useState<string | null>(() => localStorage.getItem(`user_profile_image_${userId}`));
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState("");
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   const [tasks, setTasks] = useState<Task[]>(() => {
-    const saved = localStorage.getItem('study_tasks');
+    const saved = localStorage.getItem(`study_tasks_${userId}`);
     const now = new Date();
     const curYear = now.getFullYear();
     const curMonth = String(now.getMonth() + 1).padStart(2, '0');
-    
+
     return saved ? JSON.parse(saved) : [
       { id: '1', title: '미적분 과제 1', subject: '수학', dueDate: `${curYear}-${curMonth}-10`, priority: 'high', status: 'todo', estimatedHours: 2 },
       { id: '2', title: '역사 4단원 읽기', subject: '역사', dueDate: `${curYear}-${curMonth}-12`, priority: 'medium', status: 'completed', estimatedHours: 1 },
@@ -50,22 +59,22 @@ const App: React.FC = () => {
   });
 
   useEffect(() => {
-    localStorage.setItem('study_tasks', JSON.stringify(tasks));
-  }, [tasks]);
+    localStorage.setItem(`study_tasks_${userId}`, JSON.stringify(tasks));
+  }, [tasks, userId]);
 
   useEffect(() => {
-    localStorage.setItem('is_mobile_mode', String(isMobileMode));
-  }, [isMobileMode]);
+    localStorage.setItem(`is_mobile_mode_${userId}`, String(isMobileMode));
+  }, [isMobileMode, userId]);
 
   useEffect(() => {
-    localStorage.setItem('user_name', userName);
-  }, [userName]);
+    localStorage.setItem(`user_name_${userId}`, userName);
+  }, [userName, userId]);
 
   useEffect(() => {
     if (userProfileImage) {
-      localStorage.setItem('user_profile_image', userProfileImage);
+      localStorage.setItem(`user_profile_image_${userId}`, userProfileImage);
     }
-  }, [userProfileImage]);
+  }, [userProfileImage, userId]);
 
   const fetchCheer = async () => {
     setIsRefreshing(true);
@@ -150,21 +159,21 @@ const App: React.FC = () => {
   };
 
   const renderView = () => {
-    switch(currentView) {
+    switch (currentView) {
       case 'dashboard': return <Dashboard tasks={tasks} />;
       case 'monthly': return (
-        <MonthlyView 
-          tasks={tasks} 
-          onAddTask={addTask} 
+        <MonthlyView
+          tasks={tasks}
+          onAddTask={addTask}
           onDeleteTask={deleteTask}
           onUpdateTask={updateTask}
           isMobileMode={isMobileMode}
         />
       );
       case 'weekly': return (
-        <WeeklyView 
-          tasks={tasks} 
-          onAddTask={addTask} 
+        <WeeklyView
+          tasks={tasks}
+          onAddTask={addTask}
           onUpdateTask={updateTask}
           onDeleteTask={deleteTask}
           onViewChange={setCurrentView}
@@ -180,29 +189,29 @@ const App: React.FC = () => {
   return (
     <div className={`min-h-screen bg-slate-50 flex ${isMobileMode ? 'flex-col' : ''}`}>
       {!isMobileMode && (
-        <Sidebar 
-          currentView={currentView} 
-          onViewChange={setCurrentView} 
-          isMobileMode={isMobileMode} 
+        <Sidebar
+          currentView={currentView}
+          onViewChange={setCurrentView}
+          isMobileMode={isMobileMode}
           onToggleMobile={() => setIsMobileMode(true)}
         />
       )}
-      
+
       <main className={`flex-1 ${!isMobileMode ? 'ml-64' : 'ml-0'} p-4 md:p-8 overflow-y-auto pb-24 md:pb-8`}>
         {/* Top Header */}
         <div className={`flex flex-col md:flex-row gap-4 justify-between items-center mb-6 md:mb-10 bg-white p-4 rounded-2xl shadow-sm border border-slate-200`}>
           <div className="flex items-center justify-between w-full md:w-auto md:flex-1 gap-4">
             <div className="relative flex-1 md:max-w-xs">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input 
-                type="text" 
-                placeholder="검색..." 
+              <input
+                type="text"
+                placeholder="검색..."
                 className="w-full pl-10 pr-4 py-2 bg-slate-50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-100 transition-all"
               />
             </div>
 
             {isMobileMode && (
-               <button 
+              <button
                 onClick={() => setIsMobileMode(false)}
                 className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-indigo-700 transition-all shadow-md"
               >
@@ -213,11 +222,11 @@ const App: React.FC = () => {
           </div>
 
           <div className="hidden md:flex flex-1 items-center justify-center px-4">
-             <div className="flex items-center gap-2 py-1.5 px-4 bg-rose-50 border border-rose-100 rounded-full group max-w-lg transition-all hover:shadow-sm">
-               <Heart className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-               {isEditingCheer ? (
-                 <div className="flex items-center gap-2 flex-1 min-w-[200px]">
-                   <input 
+            <div className="flex items-center gap-2 py-1.5 px-4 bg-rose-50 border border-rose-100 rounded-full group max-w-lg transition-all hover:shadow-sm">
+              <Heart className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+              {isEditingCheer ? (
+                <div className="flex items-center gap-2 flex-1 min-w-[200px]">
+                  <input
                     autoFocus
                     type="text"
                     value={tempCheer}
@@ -226,28 +235,28 @@ const App: React.FC = () => {
                     onKeyDown={handleKeyDown}
                     className="w-full bg-transparent border-none outline-none text-xs font-bold text-rose-700 placeholder:text-rose-300"
                     placeholder="응원의 한마디..."
-                   />
-                   <Check className="w-3 h-3 text-rose-400 cursor-pointer" onClick={handleSaveCheer} />
-                 </div>
-               ) : (
-                 <div className="flex items-center gap-2 cursor-pointer flex-1 overflow-hidden" onClick={handleStartEdit}>
-                   <p className="text-xs font-bold text-rose-700 italic truncate">{cheer}</p>
-                   <Edit2 className="w-3 h-3 text-rose-300 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-                 </div>
-               )}
-               <button onClick={(e) => { e.stopPropagation(); fetchCheer(); }} disabled={isRefreshing} className={`p-1 hover:bg-rose-100 rounded-full ${isRefreshing ? 'animate-spin' : ''}`}>
-                 <RotateCw className="w-3 h-3 text-rose-400" />
-               </button>
-             </div>
+                  />
+                  <Check className="w-3 h-3 text-rose-400 cursor-pointer" onClick={handleSaveCheer} />
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 cursor-pointer flex-1 overflow-hidden" onClick={handleStartEdit}>
+                  <p className="text-xs font-bold text-rose-700 italic truncate">{cheer}</p>
+                  <Edit2 className="w-3 h-3 text-rose-300 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                </div>
+              )}
+              <button onClick={(e) => { e.stopPropagation(); fetchCheer(); }} disabled={isRefreshing} className={`p-1 hover:bg-rose-100 rounded-full ${isRefreshing ? 'animate-spin' : ''}`}>
+                <RotateCw className="w-3 h-3 text-rose-400" />
+              </button>
+            </div>
           </div>
-          
+
           <div className="flex items-center gap-4 md:gap-6 self-end md:self-auto">
             <button className="relative p-2 text-slate-500 hover:bg-slate-50 rounded-xl transition-colors">
               <Bell className="w-5 h-5" />
               <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border-2 border-white"></span>
             </button>
             <div className="h-8 w-px bg-slate-200"></div>
-            
+
             <div className="flex items-center gap-3 cursor-pointer group">
               <div className="text-right hidden sm:block">
                 {isEditingName ? (
@@ -258,6 +267,7 @@ const App: React.FC = () => {
                       <p className="text-sm font-bold text-slate-700">{userName}</p>
                       <Edit2 className="w-2.5 h-2.5 text-slate-300 opacity-0 group-hover/name:opacity-100 transition-opacity" />
                     </div>
+                    <p className="text-[10px] font-bold text-indigo-400">ID: {userId}</p>
                   </div>
                 )}
               </div>
