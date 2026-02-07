@@ -140,69 +140,71 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ tasks, onAddTask, onUpdateTask,
     <div className="bg-white rounded-3xl shadow-sm border border-slate-200 flex flex-col h-[800px] overflow-hidden">
       {/* Weekly Header */}
       <div
-        className="p-6 border-b border-slate-100 flex justify-between items-center bg-white shrink-0"
+        className="p-4 md:p-6 border-b border-slate-100 flex flex-col md:flex-row gap-4 md:items-center justify-between bg-white shrink-0"
       >
-        <div className="flex items-center gap-6">
+        <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
           <div onClick={() => onViewChange?.('monthly')} className="cursor-pointer hover:bg-slate-50 p-2 -ml-2 rounded-xl transition-colors">
-            <h2 className="text-xl font-bold text-slate-800">주간 타임라인</h2>
-            <p className="text-slate-500 text-sm">기능별 학습 일정 관리</p>
+            <h2 className="text-lg md:text-xl font-bold text-slate-800">주간 타임라인</h2>
+            <p className="text-slate-500 text-[10px] md:text-sm">기능별 학습 일정 관리</p>
           </div>
 
           <div className="h-8 w-px bg-slate-100 hidden md:block"></div>
 
-          <div className="flex items-center gap-1 bg-slate-50 p-1.5 rounded-2xl border border-slate-100">
-            <button
-              onClick={() => navigateWeek('prev')}
-              className="p-1.5 hover:bg-white hover:shadow-sm rounded-xl transition-all text-slate-600 active:scale-90"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => navigateWeek('today')}
-              className="px-4 py-1.5 hover:bg-white hover:shadow-sm rounded-xl transition-all text-sm font-bold text-slate-600 active:scale-95"
-            >
-              오늘
-            </button>
-            <button
-              onClick={() => navigateWeek('next')}
-              className="p-1.5 hover:bg-white hover:shadow-sm rounded-xl transition-all text-slate-600 active:scale-90"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl md:rounded-2xl border border-slate-100">
+              <button
+                onClick={() => navigateWeek('prev')}
+                className="p-1 md:p-1.5 hover:bg-white hover:shadow-sm rounded-lg md:rounded-xl transition-all text-slate-600 active:scale-90"
+              >
+                <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
+              </button>
+              <button
+                onClick={() => navigateWeek('today')}
+                className="px-3 md:px-4 py-1 md:py-1.5 hover:bg-white hover:shadow-sm rounded-lg md:rounded-xl transition-all text-[11px] md:text-sm font-bold text-slate-600 active:scale-95"
+              >
+                오늘
+              </button>
+              <button
+                onClick={() => navigateWeek('next')}
+                className="p-1 md:p-1.5 hover:bg-white hover:shadow-sm rounded-lg md:rounded-xl transition-all text-slate-600 active:scale-90"
+              >
+                <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
+              </button>
+            </div>
 
-          <div className="flex items-center gap-2 text-slate-700 font-bold bg-white px-4 py-1.5 rounded-2xl border border-slate-100 shadow-sm">
-            <Calendar className="w-4 h-4 text-indigo-500" />
-            <span className="text-sm">
-              {weekDates[0].getMonth() + 1}월 {weekDates[0].getDate()}일 - {weekDates[6].getMonth() + 1}월 {weekDates[6].getDate()}일
-            </span>
+            <div className="flex items-center gap-2 text-slate-700 font-bold bg-white px-3 md:px-4 py-1 md:py-1.5 rounded-xl md:rounded-2xl border border-slate-100 shadow-sm shrink-0">
+              <Calendar className="w-3.5 h-3.5 md:w-4 md:h-4 text-indigo-500" />
+              <span className="text-[10px] md:text-sm whitespace-nowrap">
+                {weekDates[0].getMonth() + 1}/{weekDates[0].getDate()} - {weekDates[6].getMonth() + 1}/{weekDates[6].getDate()}
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-indigo-600 bg-indigo-50 px-4 py-2 rounded-2xl border border-indigo-100 shadow-sm">
-          <Clock className="w-4 h-4" />
-          <span className="text-xs font-black uppercase tracking-widest italic">Timeline Mode</span>
+        <div className="hidden sm:flex items-center gap-2 text-indigo-600 bg-indigo-50 px-3 md:px-4 py-1.5 md:py-2 rounded-xl md:rounded-2xl border border-indigo-100 shadow-sm self-start md:self-auto">
+          <Clock className="w-3.5 h-3.5 md:w-4 md:h-4" />
+          <span className="text-[10px] md:text-xs font-black uppercase tracking-widest italic">Timeline Mode</span>
         </div>
       </div>
 
       {/* Scrollable Timeline Grid */}
       <div className="flex-1 overflow-auto bg-slate-50/20">
-        <div className="min-w-[1000px] flex flex-col relative">
+        <div className="min-w-[700px] md:min-w-[1000px] flex flex-col relative">
 
           {/* Days Header */}
           <div className="flex border-b border-slate-100 sticky top-0 bg-white/95 backdrop-blur-sm z-30 shadow-sm">
-            <div className="w-20 border-r border-slate-100 bg-slate-50 flex items-center justify-center">
-              <span className="text-[10px] font-black text-slate-400">TIME</span>
+            <div className="w-14 md:w-20 border-r border-slate-100 bg-slate-50 flex items-center justify-center">
+              <span className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase">Time</span>
             </div>
             <div className="flex-1 grid grid-cols-7">
               {weekDates.map((date, idx) => {
                 const isToday = date.toDateString() === now.toDateString();
                 return (
-                  <div key={idx} className={`py-4 text-center border-r border-slate-100 last:border-r-0 ${isToday ? 'bg-indigo-50/40' : ''}`}>
-                    <p className={`text-[11px] font-bold uppercase mb-1 ${isToday ? 'text-indigo-600' : 'text-slate-400'}`}>
-                      {days[idx]}요일
+                  <div key={idx} className={`py-2 md:py-4 text-center border-r border-slate-100 last:border-r-0 ${isToday ? 'bg-indigo-50/40' : ''}`}>
+                    <p className={`text-[9px] md:text-[11px] font-bold uppercase mb-0.5 md:mb-1 ${isToday ? 'text-indigo-600' : 'text-slate-400'}`}>
+                      {days[idx]}
                     </p>
-                    <p className={`text-xl font-black ${isToday ? 'text-indigo-700' : 'text-slate-700'}`}>
+                    <p className={`text-sm md:text-xl font-black ${isToday ? 'text-indigo-700' : 'text-slate-700'}`}>
                       {date.getDate()}
                     </p>
                   </div>
@@ -213,10 +215,10 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ tasks, onAddTask, onUpdateTask,
 
           <div className="flex relative">
             {/* Time Axis (Lefthand side) */}
-            <div className="w-20 flex flex-col bg-slate-50/50 border-r border-slate-100 shrink-0 select-none">
+            <div className="w-14 md:w-20 flex flex-col bg-slate-50/50 border-r border-slate-100 shrink-0 select-none">
               {hoursArr.map(hour => (
                 <div key={hour} style={{ height: `${HOUR_HEIGHT}px` }} className="border-b border-slate-100 flex flex-col items-center justify-start pt-2">
-                  <span className="text-[11px] font-black text-slate-400 leading-none">
+                  <span className="text-[9px] md:text-[11px] font-black text-slate-400 leading-none">
                     {String(hour).padStart(2, '0')}:00
                   </span>
                 </div>
