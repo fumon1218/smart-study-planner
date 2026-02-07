@@ -1,0 +1,27 @@
+name: Build Android APK
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: PWABuilder Android Action
+        uses: pwa-builder/pwa-action@v1
+        with:
+          url: https://fumon1218.github.io/smart-study-planner/
+          output: ./dist-android
+          # Note: In a real scenario, you'd want to configure signing keys.
+          # For this demo/request, we'll generate an unsigned/debug APK if possible.
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: smart-study-planner-apk
+          path: ./dist-android
