@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Task, Priority, View } from '../types';
-import { X, Check, Clock, ChevronDown } from 'lucide-react';
+import { X, Check, Clock, ChevronDown, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 
 interface WeeklyViewProps {
   tasks: Task[];
@@ -16,9 +16,10 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ tasks, onAddTask, onUpdateTask,
   const subjects = ['수학', '과학', '역사', '언어', '컴퓨터공학', '미술', '기타'];
   const hoursArr = Array.from({ length: 24 }, (_, i) => i);
   const HOUR_HEIGHT = 80; // 1시간당 높이 (px)
-  
+
   const now = new Date();
-  const todayIdx = now.getDay();
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const todayIdx = currentDate.getDay();
 
   const [addingDate, setAddingDate] = useState<string | null>(null);
   const [quickTask, setQuickTask] = useState({
@@ -30,10 +31,21 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ tasks, onAddTask, onUpdateTask,
   });
 
   const weekDates = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date();
-    d.setDate(now.getDate() + (i - todayIdx));
+    const d = new Date(currentDate);
+    d.setDate(currentDate.getDate() + (i - todayIdx));
     return d;
   });
+
+  const navigateWeek = (direction: 'prev' | 'next' | 'today') => {
+    const newDate = new Date(currentDate);
+    if (direction === 'prev') newDate.setDate(currentDate.getDate() - 7);
+    else if (direction === 'next') newDate.setDate(currentDate.getDate() + 7);
+    else {
+      setCurrentDate(new Date());
+      return;
+    }
+    setCurrentDate(newDate);
+  };
 
   const getTasksForDate = (date: Date) => {
     const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -43,20 +55,20 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ tasks, onAddTask, onUpdateTask,
   const handleGridDoubleClick = (date: Date, e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const offsetY = e.clientY - rect.top;
-    
+
     // 5분 단위 스냅 계산
     const totalMinutes = (offsetY / (HOUR_HEIGHT * 24)) * (24 * 60);
     const roundedMinutes = Math.floor(totalMinutes / 5) * 5;
-    
+
     const h = Math.floor(roundedMinutes / 60);
     const m = roundedMinutes % 60;
-    
+
     const startTimeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
     const nextH = Math.min(23, h + 1);
     const endTimeStr = `${String(nextH).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 
     const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    
+
     setAddingDate(dateStr);
     setQuickTask({
       ...quickTask,
@@ -91,12 +103,12 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ tasks, onAddTask, onUpdateTask,
   const updateTime = (type: 'start' | 'end', field: 'h' | 'm', val: string) => {
     const current = parseTime(type === 'start' ? quickTask.startTime : quickTask.endTime);
     let num = parseInt(val) || 0;
-    
+
     if (field === 'h') num = Math.min(23, Math.max(0, num));
     if (field === 'm') num = Math.min(59, Math.max(0, num));
 
     const newTime = `${String(field === 'h' ? num : current.h).padStart(2, '0')}:${String(field === 'm' ? num : current.m).padStart(2, '0')}`;
-    
+
     setQuickTask(prev => ({
       ...prev,
       [type === 'start' ? 'startTime' : 'endTime']: newTime
@@ -123,24 +135,56 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ tasks, onAddTask, onUpdateTask,
   return (
     <div className="bg-white rounded-3xl shadow-sm border border-slate-200 flex flex-col h-[800px] overflow-hidden">
       {/* Weekly Header */}
-      <div 
-        onClick={() => onViewChange?.('monthly')}
-        className="p-6 border-b border-slate-100 flex justify-between items-center bg-white shrink-0 cursor-pointer hover:bg-slate-50 transition-colors"
+      <div
+        className="p-6 border-b border-slate-100 flex justify-between items-center bg-white shrink-0"
       >
-        <div>
-          <h2 className="text-xl font-bold text-slate-800">주간 타임라인</h2>
-          <p className="text-slate-500 text-sm">그리드를 <span className="text-indigo-600 font-bold">더블 클릭</span>하여 정밀한 학습 일정을 세우세요</p>
+        <div className="flex items-center gap-6">
+          <div onClick={() => onViewChange?.('monthly')} className="cursor-pointer hover:bg-slate-50 p-2 -ml-2 rounded-xl transition-colors">
+            <h2 className="text-xl font-bold text-slate-800">주간 타임라인</h2>
+            <p className="text-slate-500 text-sm">기능별 학습 일정 관리</p>
+          </div>
+
+          <div className="h-8 w-px bg-slate-100 hidden md:block"></div>
+
+          <div className="flex items-center gap-1 bg-slate-50 p-1.5 rounded-2xl border border-slate-100">
+            <button
+              onClick={() => navigateWeek('prev')}
+              className="p-1.5 hover:bg-white hover:shadow-sm rounded-xl transition-all text-slate-600 active:scale-90"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => navigateWeek('today')}
+              className="px-4 py-1.5 hover:bg-white hover:shadow-sm rounded-xl transition-all text-sm font-bold text-slate-600 active:scale-95"
+            >
+              오늘
+            </button>
+            <button
+              onClick={() => navigateWeek('next')}
+              className="p-1.5 hover:bg-white hover:shadow-sm rounded-xl transition-all text-slate-600 active:scale-90"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2 text-slate-700 font-bold bg-white px-4 py-1.5 rounded-2xl border border-slate-100 shadow-sm">
+            <Calendar className="w-4 h-4 text-indigo-500" />
+            <span className="text-sm">
+              {weekDates[0].getMonth() + 1}월 {weekDates[0].getDate()}일 - {weekDates[6].getMonth() + 1}월 {weekDates[6].getDate()}일
+            </span>
+          </div>
         </div>
+
         <div className="flex items-center gap-2 text-indigo-600 bg-indigo-50 px-4 py-2 rounded-2xl border border-indigo-100 shadow-sm">
           <Clock className="w-4 h-4" />
           <span className="text-xs font-black uppercase tracking-widest italic">Timeline Mode</span>
         </div>
       </div>
-      
+
       {/* Scrollable Timeline Grid */}
       <div className="flex-1 overflow-auto bg-slate-50/20">
         <div className="min-w-[1000px] flex flex-col relative">
-          
+
           {/* Days Header */}
           <div className="flex border-b border-slate-100 sticky top-0 bg-white/95 backdrop-blur-sm z-30 shadow-sm">
             <div className="w-20 border-r border-slate-100 bg-slate-50 flex items-center justify-center">
@@ -193,38 +237,38 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ tasks, onAddTask, onUpdateTask,
                 const isAdding = addingDate === dateStr;
 
                 return (
-                  <div 
-                    key={idx} 
+                  <div
+                    key={idx}
                     onDoubleClick={(e) => handleGridDoubleClick(date, e)}
                     className={`relative border-r border-slate-100 last:border-r-0 group cursor-crosshair hover:bg-indigo-50/10 transition-colors ${isToday ? 'bg-indigo-50/5' : ''}`}
                   >
                     {/* Quick Add Form Modal */}
                     {isAdding && (
-                      <div 
+                      <div
                         className="absolute inset-x-2 z-50 animate-in fade-in zoom-in-95 duration-200"
                         style={{ top: `${calculatePosition(quickTask.startTime)}px` }}
                         onDoubleClick={(e) => e.stopPropagation()}
                         onClick={(e) => e.stopPropagation()}
                       >
                         <div className="relative bg-white rounded-[40px] border-[3px] border-indigo-500 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.1)] p-8 flex flex-col gap-8 w-[280px] mx-auto ring-1 ring-black/5">
-                          
+
                           <div className="flex items-center justify-between">
                             <div className="bg-indigo-50 px-4 py-1.5 rounded-2xl">
-                                <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">QUICK SCHEDULER</span>
+                              <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">QUICK SCHEDULER</span>
                             </div>
                             <button onClick={handleCancelAdd} className="p-1.5 hover:bg-slate-100 rounded-full transition-colors">
-                                <X className="w-5 h-5 text-slate-400" />
+                              <X className="w-5 h-5 text-slate-400" />
                             </button>
                           </div>
 
                           <form onSubmit={handleSubmitQuickAdd} className="flex flex-col gap-6">
                             <div className="bg-slate-50 border border-slate-100 rounded-[24px] p-5 focus-within:ring-2 focus-within:ring-indigo-100 focus-within:bg-white transition-all">
-                              <input 
+                              <input
                                 autoFocus
                                 type="text"
                                 placeholder="할 일 입력..."
                                 value={quickTask.title}
-                                onChange={e => setQuickTask({...quickTask, title: e.target.value})}
+                                onChange={e => setQuickTask({ ...quickTask, title: e.target.value })}
                                 className="w-full bg-transparent text-xl font-bold text-slate-700 placeholder:text-slate-300 outline-none"
                               />
                             </div>
@@ -233,7 +277,7 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ tasks, onAddTask, onUpdateTask,
                               <div className="flex flex-col gap-3">
                                 <label className="text-sm font-bold text-slate-400 ml-2">시작</label>
                                 <div className="bg-slate-50 border border-slate-100 rounded-[28px] p-4 flex items-center justify-center gap-1 hover:bg-indigo-50 hover:border-indigo-100 transition-all focus-within:ring-2 focus-within:ring-indigo-200 focus-within:bg-white">
-                                  <input 
+                                  <input
                                     type="number"
                                     min="0"
                                     max="23"
@@ -242,7 +286,7 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ tasks, onAddTask, onUpdateTask,
                                     className="w-10 bg-transparent text-2xl font-black text-slate-700 text-center outline-none focus:text-indigo-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                   />
                                   <span className="text-xl font-black text-slate-300">:</span>
-                                  <input 
+                                  <input
                                     type="number"
                                     min="0"
                                     max="59"
@@ -257,7 +301,7 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ tasks, onAddTask, onUpdateTask,
                               <div className="flex flex-col gap-3">
                                 <label className="text-sm font-bold text-slate-400 ml-2">종료</label>
                                 <div className="bg-slate-50 border border-slate-100 rounded-[28px] p-4 flex items-center justify-center gap-1 hover:bg-indigo-50 hover:border-indigo-100 transition-all focus-within:ring-2 focus-within:ring-indigo-200 focus-within:bg-white">
-                                  <input 
+                                  <input
                                     type="number"
                                     min="0"
                                     max="23"
@@ -266,7 +310,7 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ tasks, onAddTask, onUpdateTask,
                                     className="w-10 bg-transparent text-2xl font-black text-slate-700 text-center outline-none focus:text-indigo-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                   />
                                   <span className="text-xl font-black text-slate-300">:</span>
-                                  <input 
+                                  <input
                                     type="number"
                                     min="0"
                                     max="59"
@@ -280,9 +324,9 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ tasks, onAddTask, onUpdateTask,
                             </div>
 
                             <div className="relative">
-                              <select 
+                              <select
                                 value={quickTask.subject}
-                                onChange={e => setQuickTask({...quickTask, subject: e.target.value})}
+                                onChange={e => setQuickTask({ ...quickTask, subject: e.target.value })}
                                 className="w-full appearance-none bg-slate-50 border border-slate-100 rounded-[24px] p-5 text-base font-bold text-slate-700 outline-none pr-12 focus:ring-2 focus:ring-indigo-100 focus:bg-white transition-all"
                               >
                                 {subjects.map(s => <option key={s} value={s}>{s}</option>)}
@@ -290,8 +334,8 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ tasks, onAddTask, onUpdateTask,
                               <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
                             </div>
 
-                            <button 
-                              type="submit" 
+                            <button
+                              type="submit"
                               className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-5 rounded-[28px] shadow-2xl shadow-indigo-200 transition-all flex items-center justify-center gap-3 active:scale-[0.96]"
                             >
                               <Check className="w-6 h-6 stroke-[3px]" />
@@ -307,26 +351,24 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ tasks, onAddTask, onUpdateTask,
                       {dayTasks.map(task => {
                         const top = calculatePosition(task.startTime);
                         const height = calculateHeight(task.startTime, task.endTime);
-                        
+
                         return (
-                          <div 
-                            key={task.id} 
+                          <div
+                            key={task.id}
                             style={{ top: `${top}px`, height: `${height}px` }}
                             onClick={() => onUpdateTask(task.id, { status: task.status === 'completed' ? 'todo' : 'completed' })}
-                            className={`absolute inset-x-1.5 p-2 rounded-xl border shadow-sm transition-all pointer-events-auto cursor-pointer hover:shadow-md group/task overflow-hidden ${
-                              task.status === 'completed' 
-                                ? 'bg-slate-50 border-slate-100 opacity-60' 
+                            className={`absolute inset-x-1.5 p-2 rounded-xl border shadow-sm transition-all pointer-events-auto cursor-pointer hover:shadow-md group/task overflow-hidden ${task.status === 'completed'
+                                ? 'bg-slate-50 border-slate-100 opacity-60'
                                 : 'bg-white border-indigo-100 border-l-4 border-l-indigo-500 hover:border-l-indigo-600'
-                            }`}
+                              }`}
                           >
                             <div className="flex items-center justify-between mb-1">
-                              <span className={`text-[7px] font-black uppercase px-1.5 py-0.5 rounded-md ${
-                                task.priority === 'high' ? 'bg-rose-100 text-rose-600' : 
-                                task.priority === 'medium' ? 'bg-amber-100 text-amber-600' : 'bg-sky-100 text-sky-600'
-                              }`}>
+                              <span className={`text-[7px] font-black uppercase px-1.5 py-0.5 rounded-md ${task.priority === 'high' ? 'bg-rose-100 text-rose-600' :
+                                  task.priority === 'medium' ? 'bg-amber-100 text-amber-600' : 'bg-sky-100 text-sky-600'
+                                }`}>
                                 {task.subject}
                               </span>
-                              <button 
+                              <button
                                 onClick={(e) => { e.stopPropagation(); onDeleteTask(task.id); }}
                                 className="opacity-0 group-hover/task:opacity-100 p-0.5 hover:bg-rose-50 rounded transition-all"
                               >
@@ -350,7 +392,7 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ tasks, onAddTask, onUpdateTask,
           </div>
         </div>
       </div>
-      
+
       {/* Legend & Instructions */}
       <div className="p-4 bg-slate-50 border-t border-slate-100 flex gap-8 justify-center shrink-0">
         <div className="flex items-center gap-2 text-slate-400">
