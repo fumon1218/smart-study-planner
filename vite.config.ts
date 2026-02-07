@@ -4,8 +4,10 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
+  const isApk = process.env.VITE_BUILD_FOR_APK === 'true';
+
   return {
-    base: '/smart-study-planner/',
+    base: isApk ? '/' : '/smart-study-planner/',
     server: {
       port: 3000,
       host: '0.0.0.0',
