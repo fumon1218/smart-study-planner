@@ -1,13 +1,13 @@
 
 import React from 'react';
 import { View } from '../types';
-import { 
-  LayoutDashboard, 
-  Calendar, 
-  CalendarDays, 
-  Clock, 
+import {
+  LayoutDashboard,
+  Calendar,
+  CalendarDays,
+  Clock,
   BarChart3,
-  Sparkles, 
+  Sparkles,
   GraduationCap,
   Smartphone
 } from 'lucide-react';
@@ -35,9 +35,12 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, onToggleMo
         <div className="p-2 bg-indigo-600 rounded-lg">
           <GraduationCap className="w-6 h-6 text-white" />
         </div>
-        <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
-          학습 플래너
-        </h1>
+        <div className="flex flex-col">
+          <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
+            학습 플래너
+          </h1>
+          <p className="text-[10px] font-bold text-slate-400">v1.0.1</p>
+        </div>
       </div>
 
       <nav className="flex-1 px-4 py-4 space-y-1">
@@ -45,11 +48,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, onToggleMo
           <button
             key={item.id}
             onClick={() => onViewChange(item.id)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
-              currentView === item.id 
-                ? 'bg-indigo-50 text-indigo-700 shadow-sm' 
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${currentView === item.id
+                ? 'bg-indigo-50 text-indigo-700 shadow-sm'
                 : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'
-            }`}
+              }`}
           >
             <item.icon className="w-5 h-5" />
             <span className="font-medium text-sm">{item.label}</span>
@@ -58,7 +60,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, onToggleMo
       </nav>
 
       <div className="p-4 border-t border-slate-100 space-y-3">
-        <button 
+        <button
           onClick={onToggleMobile}
           className="w-full flex items-center justify-center gap-2 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-xs font-bold transition-all shadow-lg shadow-indigo-100"
         >
