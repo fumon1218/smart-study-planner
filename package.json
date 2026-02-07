@@ -15,11 +15,14 @@
     "@google/genai": "^1.40.0",
     "lucide-react": "^0.563.0",
     "react": "^19.2.4",
-    "react-dom": "^19.2.4",
-    "recharts": "^3.7.0"
+    "lucide-react": "^0.563.0",
+    "recharts": "^3.7.0",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/android": "^6.0.0"
   },
   "devDependencies": {
-    "@types/node": "^22.14.0",
+    "@capacitor/cli": "^6.0.0",
+    "@types/react": "^19.0.8",
     "@vitejs/plugin-react": "^5.0.0",
     "gh-pages": "^6.3.0",
     "typescript": "~5.8.2",

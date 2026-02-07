@@ -16,17 +16,34 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
 
-      - name: Build APK
-        uses: cemcoe/web-to-apk-action@v1
+      - name: Setup Java
+        uses: actions/setup-java@v3
         with:
-          app_name: "Smart Study Planner"
-          app_id: "com.smartstudy.planner"
-          build_command: "npm install && npm run build"
-          web_dir: "dist"
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Web App
+        run: npm run build
+
+      - name: Add Android Platform
+        run: npx cap add android
+
+      - name: Sync Capacitor
+        run: npx cap sync
+
+      - name: Build Android APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: smart-study-planner-apk
-          path: ./*.apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
