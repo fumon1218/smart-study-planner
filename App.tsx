@@ -15,6 +15,7 @@ import { getQuickAdvice } from './services/gemini';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>('dashboard');
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   // 사용자 고유 아이디 (기기별 식별)
   const [userId] = useState<string>(() => {
@@ -177,9 +178,13 @@ const App: React.FC = () => {
           onUpdateTask={updateTask}
           onDeleteTask={deleteTask}
           onViewChange={setCurrentView}
+          onDateSelect={(date) => {
+            setSelectedDate(date);
+            setCurrentView('daily');
+          }}
         />
       );
-      case 'daily': return <DailyView />;
+      case 'daily': return <DailyView selectedDate={selectedDate} />;
       case 'stats': return <StatsView />;
       case 'ai-assistant': return <AIConsultant />;
       default: return <Dashboard tasks={tasks} />;

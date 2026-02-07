@@ -3,7 +3,11 @@ import React, { useState } from 'react';
 import { Clock, BookOpen, Edit3 } from 'lucide-react';
 import { DayPlan, HourlyPlan } from '../types';
 
-const DailyView: React.FC = () => {
+interface DailyViewProps {
+  selectedDate: Date;
+}
+
+const DailyView: React.FC<DailyViewProps> = ({ selectedDate }) => {
   const [plans, setPlans] = useState<HourlyPlan[]>(
     Array.from({ length: 24 }, (_, i) => ({
       hour: i,
@@ -12,8 +16,7 @@ const DailyView: React.FC = () => {
     }))
   );
 
-  const today = new Date();
-  const dateStr = today.toLocaleDateString('ko-KR', {
+  const dateStr = selectedDate.toLocaleDateString('ko-KR', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',

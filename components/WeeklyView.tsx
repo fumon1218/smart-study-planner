@@ -9,9 +9,10 @@ interface WeeklyViewProps {
   onUpdateTask: (id: string, updates: Partial<Task>) => void;
   onDeleteTask: (id: string) => void;
   onViewChange?: (view: View) => void;
+  onDateSelect?: (date: Date) => void;
 }
 
-const WeeklyView: React.FC<WeeklyViewProps> = ({ tasks, onAddTask, onUpdateTask, onDeleteTask, onViewChange }) => {
+const WeeklyView: React.FC<WeeklyViewProps> = ({ tasks, onAddTask, onUpdateTask, onDeleteTask, onViewChange, onDateSelect }) => {
   const days = ['일', '월', '화', '수', '목', '금', '토'];
   const subjects = ['수학', '과학', '역사', '언어', '컴퓨터공학', '미술', '기타', '직접 입력'];
   const hoursArr = Array.from({ length: 24 }, (_, i) => i);
@@ -200,7 +201,11 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ tasks, onAddTask, onUpdateTask,
               {weekDates.map((date, idx) => {
                 const isToday = date.toDateString() === now.toDateString();
                 return (
-                  <div key={idx} className={`py-2 md:py-4 text-center border-r border-slate-100 last:border-r-0 ${isToday ? 'bg-indigo-50/40' : ''}`}>
+                  <div
+                    key={idx}
+                    onClick={() => onDateSelect?.(date)}
+                    className={`py-2 md:py-4 text-center border-r border-slate-100 last:border-r-0 cursor-pointer hover:bg-slate-50 transition-colors ${isToday ? 'bg-indigo-50/40' : ''}`}
+                  >
                     <p className={`text-[9px] md:text-[11px] font-bold uppercase mb-0.5 md:mb-1 ${isToday ? 'text-indigo-600' : 'text-slate-400'}`}>
                       {days[idx]}
                     </p>
