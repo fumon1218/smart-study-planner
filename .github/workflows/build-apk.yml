@@ -12,14 +12,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: PWABuilder Android Action
-        uses: pwa-builder/pwabuilder-google-play@v1
+      - name: Build APK
+        uses: cemcoe/web-to-apk-action@v1
         with:
-          url: https://fumon1218.github.io/smart-study-planner/
-          output: ./dist-android
+          app_name: "Smart Study Planner"
+          app_id: "com.smartstudy.planner"
+          build_command: "npm install && npm run build"
+          web_dir: "dist"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: smart-study-planner-apk
-          path: ./dist-android
+          path: ./*.apk
