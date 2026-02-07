@@ -327,15 +327,30 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ tasks, onAddTask, onUpdateTask,
                               </div>
                             </div>
 
-                            <div className="relative">
-                              <select
-                                value={quickTask.subject}
-                                onChange={e => setQuickTask({ ...quickTask, subject: e.target.value })}
-                                className="w-full appearance-none bg-slate-50 border border-slate-100 rounded-[24px] p-5 text-base font-bold text-slate-700 outline-none pr-12 focus:ring-2 focus:ring-indigo-100 focus:bg-white transition-all"
-                              >
-                                {subjects.map(s => <option key={s} value={s}>{s}</option>)}
-                              </select>
-                              <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                            <div className="flex flex-col gap-4">
+                              <div className="relative">
+                                <select
+                                  value={quickTask.subject}
+                                  onChange={e => setQuickTask({ ...quickTask, subject: e.target.value })}
+                                  className="w-full appearance-none bg-slate-50 border border-slate-100 rounded-[24px] p-5 text-base font-bold text-slate-700 outline-none pr-12 focus:ring-2 focus:ring-indigo-100 focus:bg-white transition-all"
+                                >
+                                  {subjects.map(s => <option key={s} value={s}>{s}</option>)}
+                                </select>
+                                <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                              </div>
+
+                              {quickTask.subject === '직접 입력' && (
+                                <div className="bg-slate-50 border border-slate-100 rounded-[24px] p-5 focus-within:ring-2 focus-within:ring-indigo-100 focus-within:bg-white transition-all animate-in slide-in-from-top-2 duration-200">
+                                  <input
+                                    autoFocus
+                                    type="text"
+                                    placeholder="과목명 입력..."
+                                    value={quickTask.customSubject}
+                                    onChange={e => setQuickTask({ ...quickTask, customSubject: e.target.value })}
+                                    className="w-full bg-transparent text-base font-bold text-slate-700 placeholder:text-slate-300 outline-none"
+                                  />
+                                </div>
+                              )}
                             </div>
 
                             <button
