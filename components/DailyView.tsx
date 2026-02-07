@@ -1,13 +1,15 @@
 
 import React, { useState } from 'react';
-import { Clock, BookOpen, Edit3 } from 'lucide-react';
-import { DayPlan, HourlyPlan } from '../types';
+import { Clock, BookOpen, Edit3, ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react';
+import { DayPlan, HourlyPlan, View } from '../types';
 
 interface DailyViewProps {
   selectedDate: Date;
+  onDateChange?: (date: Date) => void;
+  onViewChange?: (view: View) => void;
 }
 
-const DailyView: React.FC<DailyViewProps> = ({ selectedDate }) => {
+const DailyView: React.FC<DailyViewProps> = ({ selectedDate, onDateChange, onViewChange }) => {
   const [plans, setPlans] = useState<HourlyPlan[]>(
     Array.from({ length: 24 }, (_, i) => ({
       hour: i,
@@ -23,6 +25,12 @@ const DailyView: React.FC<DailyViewProps> = ({ selectedDate }) => {
     weekday: 'long'
   });
 
+  const navigateDay = (direction: 'prev' | 'next') => {
+    const newDate = new Date(selectedDate);
+    newDate.setDate(selectedDate.getDate() + (direction === 'prev' ? -1 : 1));
+    onDateChange?.(newDate);
+  };
+
   const handleUpdate = (hour: number, field: 'subject' | 'plan', value: string) => {
     setPlans(plans.map(p => p.hour === hour ? { ...p, [field]: value } : p));
   };
@@ -30,9 +38,32 @@ const DailyView: React.FC<DailyViewProps> = ({ selectedDate }) => {
   return (
     <div className="max-w-4xl mx-auto space-y-4 md:space-y-6">
       <div className="bg-white p-4 md:p-8 rounded-3xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-        <div className="flex flex-col gap-1">
-          <h2 className="text-xl md:text-3xl font-bold text-slate-800 tracking-tight leading-tight">{dateStr}</h2>
-          <p className="text-slate-500 text-sm md:text-base">오늘의 타임라인에 집중하세요</p>
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigateDay('prev')}
+              className="p-2 hover:bg-slate-50 rounded-xl transition-all text-slate-400 hover:text-indigo-600 active:scale-90"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+            <h2 className="text-xl md:text-3xl font-bold text-slate-800 tracking-tight leading-tight">{dateStr}</h2>
+            <button
+              onClick={() => navigateDay('next')}
+              className="p-2 hover:bg-slate-50 rounded-xl transition-all text-slate-400 hover:text-indigo-600 active:scale-90"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+          </div>
+          <div className="flex items-center gap-4 ml-2">
+            <p className="text-slate-500 text-sm md:text-base">오늘의 타임라인에 집중하세요</p>
+            <button
+              onClick={() => onViewChange?.('weekly')}
+              className="flex items-center gap-1.5 text-xs font-bold text-indigo-500 hover:text-indigo-700 transition-colors group"
+            >
+              <CalendarDays className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+              주간 계획으로 이동
+            </button>
+          </div>
         </div>
         <div className="flex items-center gap-2 px-3 py-1.5 md:px-5 md:py-2.5 bg-indigo-50 text-indigo-700 rounded-xl md:rounded-2xl border border-indigo-100 self-start md:self-center">
           <Clock className="w-4 h-4" />

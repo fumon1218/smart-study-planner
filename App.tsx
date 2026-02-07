@@ -184,7 +184,13 @@ const App: React.FC = () => {
           }}
         />
       );
-      case 'daily': return <DailyView selectedDate={selectedDate} />;
+      case 'daily': return (
+        <DailyView
+          selectedDate={selectedDate}
+          onDateChange={setSelectedDate}
+          onViewChange={setCurrentView}
+        />
+      );
       case 'stats': return <StatsView />;
       case 'ai-assistant': return <AIConsultant />;
       default: return <Dashboard tasks={tasks} />;
