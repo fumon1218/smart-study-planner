@@ -1,0 +1,8 @@
+{
+  "name": "Smart Study Planner",
+  "description": "An AI-powered learning management system that helps students organize tasks, generate study plans using Gemini, and track progress through beautiful data visualizations.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
