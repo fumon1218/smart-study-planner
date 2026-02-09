@@ -83,8 +83,12 @@ const App: React.FC = () => {
       const msg = await getQuickAdvice("새로운 것을 배우는 오늘의 나를 위한 응원");
       const cleanMsg = msg.replace(/\*/g, '');
       setCheer(cleanMsg);
-    } catch (error) {
-      setCheer("오늘도 당신의 성장을 응원합니다!");
+    } catch (error: any) {
+      if (error.message === 'API_KEY_MISSING') {
+        setCheer("AI 설정을 완료하면 맞춤형 응원을 받을 수 있습니다!");
+      } else {
+        setCheer("오늘도 당신의 성장을 응원합니다!");
+      }
     } finally {
       setIsRefreshing(false);
     }

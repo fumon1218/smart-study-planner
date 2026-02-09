@@ -2,9 +2,21 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { GeneratedPlan } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+const getApiKey = () => {
+  const savedKey = localStorage.getItem('gemini_api_key');
+  if (savedKey) return savedKey;
+  // @ts-ignore
+  return import.meta.env.VITE_GEMINI_API_KEY || '';
+};
+
+const getAIInstance = () => {
+  const apiKey = getApiKey();
+  if (!apiKey) throw new Error('API_KEY_MISSING');
+  return new GoogleGenAI({ apiKey });
+};
 
 export const generateStudyPlan = async (subject: string, goal: string, durationDays: number): Promise<GeneratedPlan> => {
+  const ai = getAIInstance();
   const response = await ai.models.generateContent({
     model: 'gemini-3-flash-preview',
     contents: `Generate a structured study plan for the subject "${subject}" with the goal "${goal}" over ${durationDays} days.`,
@@ -41,6 +53,7 @@ export const generateStudyPlan = async (subject: string, goal: string, durationD
 };
 
 export const getQuickAdvice = async (taskTitle: string): Promise<string> => {
+  const ai = getAIInstance();
   const response = await ai.models.generateContent({
     model: 'gemini-3-flash-preview',
     contents: `Provide a quick, 1-sentence productivity tip or a mnemonic for studying: "${taskTitle}". Keep it encouraging and short.`
